@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# 记录脚本开始时间
+start_time_total=$(date +%s)
+
 # Load environment variables from .env file
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 ENV_FILE="$SCRIPT_DIR/../.env"
@@ -30,7 +33,7 @@ timeout=6000
 start_time=$(date +%s)
 
 # main_ports=(6001 6002 6003 6004 6005 6006 6007 6008)
-main_ports=(6001)
+main_ports=(6001 6002 6003 6004)
 echo "Mode: All ports used as main model"
 
 declare -A server_status
@@ -98,7 +101,19 @@ fi
 
 echo "==== start infer... ===="
 
-
 cd "$( dirname -- "${BASH_SOURCE[0]}" )"
 
+# 记录推理开始时间
+start_time_infer=$(date +%s)
+
 python -u run_multi_react.py --dataset "$DATASET" --output "$OUTPUT_PATH" --max_workers $MAX_WORKERS --model $MODEL_PATH --temperature $TEMPERATURE --presence_penalty $PRESENCE_PENALTY --total_splits ${WORLD_SIZE:-1} --worker_split $((${RANK:-0} + 1)) --roll_out_count $ROLLOUT_COUNT
+
+# 记录推理结束时间并计算推理耗时
+end_time_infer=$(date +%s)
+infer_duration=$((end_time_infer - start_time_infer))
+echo "==== Inference completed in $infer_duration seconds ===="
+
+# 计算总运行时间
+end_time_total=$(date +%s)
+total_duration=$((end_time_total - start_time_total))
+echo "==== Total script execution time: $total_duration seconds ===="
