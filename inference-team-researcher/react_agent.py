@@ -16,6 +16,8 @@ import datetime
 from tool_file import *
 from tool_search_and_refine import * 
 
+from openai import OpenAI, APIError, APIConnectionError, APITimeoutError
+import pdb
 
 OBS_START = '<tool_response>'
 OBS_END = '\n</tool_response>'
@@ -45,7 +47,8 @@ class MultiTurnReactAgent(FnCallAgent):
     def sanity_check_output(self, content):
         return "<think>" in content and "</think>" in content
     
-    def call_server(self, msgs, planning_port, max_tries=10):
+    def call_server(self, msgs, planning_port, max_tries=3):
+        # pdb.set_trace()
         openai_api_key = "EMPTY"
         openai_api_base = f"http://127.0.0.1:{planning_port}/v1"
 
@@ -58,7 +61,8 @@ class MultiTurnReactAgent(FnCallAgent):
         base_sleep_time = 1 
         for attempt in range(max_tries):
             try:
-                print(f"--- Attempting to call the service, try {attempt + 1}/{max_tries} ---")
+                if attempt > 1:
+                    print(f"--- Attempting to call the service, try {attempt + 1}/{max_tries} ---")
                 chat_response = client.chat.completions.create(
                     model=self.model,
                     messages=msgs,
@@ -81,7 +85,7 @@ class MultiTurnReactAgent(FnCallAgent):
                 print(f"Error: Attempt {attempt + 1} failed with an unexpected error: {e}")
             if attempt < max_tries - 1:
                 sleep_time = base_sleep_time * (2 ** attempt) + random.uniform(0, 1)
-                sleep_time = min(sleep_time, 30) 
+                sleep_time = min(sleep_time, 15) 
                 print(f"Retrying in {sleep_time:.2f} seconds...")
                 time.sleep(sleep_time)
             else:
@@ -96,6 +100,7 @@ class MultiTurnReactAgent(FnCallAgent):
         return token_count
 
     def _run(self, data: str, model: str, **kwargs) -> List[List[Message]]:
+        # pdb.set_trace()
         self.model=model
         try:
             question = data['item']['question']

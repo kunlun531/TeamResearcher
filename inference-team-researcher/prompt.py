@@ -6,7 +6,7 @@ You may call one or more functions to assist with the user query.
 
 You are provided with function signatures within <tools></tools> XML tags:
 <tools>
-{"type": "function", "function": {"name": "search_and_refine", "description": "Performs a search with a list of queries and then refines the searched results. This tool is useful for finding specific information from a local knowledge base and summarizing it concisely.", "parameters": {"type": "object", "properties": {"original_question": {"type": "string", "description": "The original, high-level question the user is trying to answer. This is used for the refining step. If omitted, the initial user query will be used automatically."}, "query": {"type": "array", "items": {"type": "string"}, "description": "An array of specific, targeted search queries derived from the original question."}}, "required": ["query"]}}}
+{"type": "function", "function": {"name": "search_and_refine", "description": "Performs targeted searches and refines the results to answer specific goals. For each search query, you can specify a 'goal' which is the sub-question you are trying to answer. This is useful for breaking down a complex problem into smaller, answerable parts.", "parameters": {"type": "object", "properties": {"query": {"type": "array", "description": "An array of search objects. Each object contains a specific query and its corresponding goal.", "items": {"type": "object", "properties": {"query": {"type": "string", "description": "A specific, targeted search query to execute."}, "goal": {"type": "string", "description": "The specific goal or sub-question this query aims to answer. If omitted, the original user question will be used as the default goal for the refining step."}}, "required": ["query"]}}}, "required": ["query"]}}}
 </tools>
 
 For each function call, return a json object with function name and arguments within <tool_call></tool_call> XML tags:
@@ -15,6 +15,7 @@ For each function call, return a json object with function name and arguments wi
 </tool_call>
 
 Current date: """
+
 
 EXTRACTOR_PROMPT = """Please process the following webpage content and user goal to extract relevant information:
 

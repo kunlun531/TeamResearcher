@@ -9,6 +9,7 @@ from datetime import datetime
 from react_agent import MultiTurnReactAgent
 import time
 import math
+from openai import APIError
 import pdb
 
 if __name__ == "__main__":
@@ -111,8 +112,8 @@ if __name__ == "__main__":
     tasks_to_run_all = []
     per_rollout_task_counts = {i: 0 for i in range(1, roll_out_count + 1)}
     # Define ports
-    # planning_ports = [6001, 6002, 6003, 6004, 6005, 6006, 6007, 6008]
-    planning_ports = [6001, 6002, 6003, 6004]
+    planning_ports = [6001, 6002, 6003, 6004, 6005, 6006, 6007, 6008]
+    # planning_ports = [16001, 16002, 16003, 16004]
     # Round-robin state
     planning_rr_idx = 0
     summary_rr_idx = 0
